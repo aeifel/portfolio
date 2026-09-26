@@ -1,0 +1,619 @@
+/* ══════════════ themes ══════════════
+   light = schematic on paper · dark = board under a bench lamp     */
+:root{
+  --bg:#eceff3; --bg-2:#e3e7ed; --surface:#fbfcfd; --surface-2:#f4f6f9;
+  --line:rgba(22,30,42,.17); --line-2:rgba(22,30,42,.38);
+  --ink:#121820; --ink-2:#48525f; --ink-3:#727d8b; --silk:#95a0ae;
+  --signal:#bf5316; --signal-2:#e0691f; --signal-bg:rgba(191,83,22,.10);
+  --live:#16794a; --warm:#bf5316; --draft:#858f9c;
+  --grid:rgba(22,30,42,.075); --shadow:0 1px 2px rgba(22,30,42,.05),0 12px 30px rgba(22,30,42,.07);
+}
+[data-theme="dark"]{
+  --bg:#171b22; --bg-2:#1c212a; --surface:#20262f; --surface-2:#262d37;
+  --line:rgba(255,255,255,.19); --line-2:rgba(255,255,255,.38);
+  --ink:#f2f5f8; --ink-2:#aeb8c4; --ink-3:#828d9b; --silk:#626e7c;
+  --signal:#ffb347; --signal-2:#ffc470; --signal-bg:rgba(255,179,71,.13);
+  --live:#4ade80; --warm:#ffb347; --draft:#828d9b;
+  --grid:rgba(255,255,255,.07); --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.34);
+}
+:root{
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  --gut:158px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--mono);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+  transition:background-color .45s,color .45s;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* ══════════════ top bar ══════════════ */
+/* always present — the controls must never be unreachable.
+   It only grows a background once you have scrolled off the landing. */
+.bar{
+  position:fixed;top:0;left:0;right:0;z-index:40;height:54px;
+  display:flex;align-items:center;gap:14px;padding:0 calc(22px + var(--sbw,0px)) 0 22px;
+  background:transparent;border-bottom:1px solid transparent;
+  transition:background .4s,border-color .4s,backdrop-filter .4s;
+}
+.bar.on{
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom-color:var(--line);
+}
+.bar .who{font-size:13px;letter-spacing:.01em;color:var(--ink);opacity:0;transition:opacity .35s}
+.bar.on .who{opacity:1}
+.bar .sp{flex:1}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:none;border:1px solid var(--line);border-radius:5px;
+  color:var(--ink-2);font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  padding:6px 11px;cursor:pointer;transition:.22s;
+}
+.btn:hover{color:var(--ink);border-color:var(--line-2);background:var(--surface-2)}
+.btn:disabled{opacity:.35;cursor:default;background:none;border-color:var(--line);color:var(--ink-3)}
+.btn kbd{font:inherit;opacity:.65}
+/* ══════════════ landing ══════════════ */
+.landing{
+  min-height:100svh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;position:relative;
+  padding:86px 24px 92px;text-align:center;
+}
+/* the name card — the first component on the board */
+.namecard{
+  width:min(760px,100%);background:var(--surface);
+  border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);
+  padding:26px 40px 0;overflow:hidden;
+}
+.nc-top{display:flex;align-items:center;gap:11px;margin-bottom:30px}
+.nc-top .c-u,.nc-top .c-st{color:var(--silk)}
+/* core set — static, always legible, one drawing language */
+.core{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:20px 8px;
+  margin-top:38px;padding-top:30px;border-top:1px dotted var(--line);
+}
+.core .g{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:var(--ink-3);cursor:default;
+}
+.core .g svg{
+  width:27px;height:27px;stroke:currentColor;fill:none;
+  stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;
+  transition:color .22s,transform .28s cubic-bezier(.22,.9,.3,1);
+}
+.core .g span{
+  font-size:8.5px;letter-spacing:.11em;color:var(--silk);
+  transition:color .22s;white-space:nowrap;
+}
+.core .g:hover{color:var(--signal)}
+.core .g:hover svg{transform:translateY(-3px)}
+.core .g:hover span{color:var(--ink-2)}
+/* edge connector — the contacts it plugs into everything else with */
+.edge{
+  position:relative;margin:34px -40px 0;height:46px;padding:0 0 8px;width:calc(100% + 80px);
+  border:0;border-top:1px solid var(--line);background:var(--surface-2);
+  display:flex;align-items:center;overflow:hidden;cursor:pointer;
+  font-family:var(--mono);transition:background .25s;
+}
+.edge:hover{background:var(--signal-bg)}
+/* the ticker gets its own column so nothing ever scrolls under the label */
+.marq-wrap{
+  flex:1;min-width:0;overflow:hidden;display:flex;align-self:stretch;align-items:center;
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+}
+.edge-hint{
+  flex:none;display:flex;align-items:center;gap:6px;padding:0 18px;align-self:stretch;
+  border-left:1px solid var(--line);white-space:nowrap;
+  font-size:9px;letter-spacing:.2em;color:var(--ink-3);transition:color .25s;
+}
+.edge:hover .edge-hint{color:var(--signal)}
+.edge-hint b{font-weight:400;color:var(--silk)}
+/* the contacts themselves, along the very bottom edge of the card */
+.edge::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:8px;pointer-events:none;
+  background:repeating-linear-gradient(90deg,var(--signal) 0 7px,transparent 7px 13px);
+  opacity:.5;
+}
+/* the bus leaves the card here and runs down the page */
+.drop{
+  position:relative;width:26px;height:108px;margin:0 auto;
+  display:flex;justify-content:center;overflow:hidden;
+  mask-image:linear-gradient(180deg,#000 62%,transparent);
+  -webkit-mask-image:linear-gradient(180deg,#000 62%,transparent);
+}
+.drop::before,.drop::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.drop::before{left:calc(50% - 11px)}
+.drop::after{left:calc(50% + 11px)}
+.drop-bits{
+  writing-mode:vertical-rl;text-orientation:upright;
+  font-family:var(--mono);font-size:10px;letter-spacing:.34em;
+  color:var(--signal);opacity:.5;white-space:nowrap;user-select:none;
+  animation:flow 22s linear infinite;
+}
+.decode{
+  font-family:var(--mono);font-size:clamp(34px,7.4vw,74px);line-height:1.04;
+  letter-spacing:-.025em;color:var(--ink);margin:0 0 4px;font-weight:500;
+  min-height:1.04em;
+}
+.decode .c{transition:color .18s}
+.decode .c.b{color:var(--signal);opacity:.62}
+/* the core block under the name */
+.intro{max-width:56ch;margin:26px auto 0;text-align:left}
+.intro p{font-family:var(--sans);font-size:14.5px;line-height:1.72;color:var(--ink-3);margin:0 0 12px}
+.intro p.lead{font-size:clamp(16px,2.1vw,19.5px);line-height:1.56;color:var(--ink-2);margin-bottom:16px}
+.intro b{color:var(--ink);font-weight:500}
+.quote{
+  margin:22px 0 0;padding:14px 0 0;border-top:1px dotted var(--line);
+  font-family:var(--sans);
+}
+.quote{display:flex;gap:11px;align-items:baseline}
+.quote .tag{
+  flex:none;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:var(--signal);opacity:.75;
+}
+.quote em{display:block;font-size:14px;line-height:1.6;color:var(--ink-2)}
+/* binary that shows its meaning on hover — both layers share one grid cell,
+   so nothing resizes and the pointer never falls out of the element */
+.binline{
+  display:inline-grid;cursor:default;text-align:center;
+  font-family:var(--mono);font-style:italic;
+  font-size:9.5px;line-height:1.75;letter-spacing:.14em;
+  color:var(--signal);opacity:.42;transition:opacity .25s;
+  max-width:min(560px,86vw);overflow-wrap:anywhere;
+}
+.binline > *{grid-area:1/1;transition:opacity .28s}
+.binline .plain{opacity:0;align-self:center;font-size:10.5px;letter-spacing:.16em;font-style:italic}
+.binline:hover,.binline:focus-visible{opacity:.95;outline:none}
+.binline:hover .digits,.binline:focus-visible .digits{opacity:0}
+.binline:hover .plain,.binline:focus-visible .plain{opacity:1}
+.cue{
+  margin-top:20px;
+  font-size:10.5px;letter-spacing:.24em;color:var(--silk);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.cue.arrow-only{margin-top:-4px}
+.cue .arr{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(5px);opacity:1}}
+/* ══════════════ the board ══════════════ */
+.board{
+  position:relative;max-width:1180px;margin:0 auto;
+  padding:0 24px 60px;
+}
+.board-head{
+  text-align:center;padding:0 0 70px;
+}
+.board-head .h{font-size:11px;letter-spacing:.3em;color:var(--silk)}
+.board-head .p{margin:16px auto 0;max-width:62ch;display:flex;justify-content:center}
+/* the vertical bit bus — spans only the component rows */
+.rows{position:relative}
+.spine{
+  position:absolute;top:0;bottom:0;left:50%;width:var(--gut);
+  transform:translateX(-50%);pointer-events:none;z-index:0;
+  display:flex;justify-content:center;overflow:hidden;
+  mask-image:linear-gradient(180deg,transparent,#000 4%,#000 95%,transparent);
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 4%,#000 95%,transparent);
+}
+.spine::before,.spine::after{
+  content:"";position:absolute;top:0;bottom:0;width:1px;background:var(--line);
+}
+.spine::before{left:calc(50% - 11px)}
+.spine::after{left:calc(50% + 11px)}
+.spine-bits{
+  writing-mode:vertical-rl;text-orientation:upright;
+  font-family:var(--mono);font-size:10px;letter-spacing:.34em;
+  color:var(--signal);opacity:.5;user-select:none;white-space:nowrap;
+  animation:flow 30s linear infinite;will-change:transform;
+}
+@keyframes flow{to{transform:translateY(-50%)}}
+.spine-tag{
+  position:sticky;top:64px;z-index:3;height:0;
+  display:flex;justify-content:center;pointer-events:none;
+}
+.spine-tag span{
+  font-size:9px;letter-spacing:.26em;color:var(--silk);
+  background:var(--bg);padding:3px 8px;border-radius:3px;
+  transform:translateY(-4px);
+}
+/* components */
+/* content is visible by default; only JS opts into the reveal animation,
+   so a script failure never leaves the page blank */
+.comp{
+  position:relative;z-index:1;width:calc(50% - var(--gut)/2);
+  margin-bottom:44px;
+}
+.js .comp{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .62s cubic-bezier(.22,.9,.3,1),transform .62s cubic-bezier(.22,.9,.3,1);
+}
+.js .comp.in{opacity:1;transform:none}
+.comp.r{margin-left:auto}
+.comp .conn{
+  position:absolute;top:38px;width:calc(var(--gut)/2 - 11px);height:56px;overflow:visible;
+  pointer-events:none;
+}
+.comp.l .conn{left:100%}
+.comp.r .conn{right:100%;transform:scaleX(-1)}
+.conn .tr{fill:none;stroke:var(--line);stroke-width:1.25;stroke-linejoin:round;transition:stroke .3s}
+.js .conn .tr{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset .8s ease .1s,stroke .3s}
+.js .comp.in .conn .tr{stroke-dashoffset:0}
+.conn .via{fill:var(--bg);stroke:var(--line);stroke-width:1.25;transition:stroke .3s,fill .3s}
+.conn .bits{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;fill:var(--signal);opacity:.62;transition:opacity .5s}
+.js .conn .bits{opacity:0}
+.js .comp.in .conn .bits{opacity:.62}
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:7px;
+  padding:20px 22px 18px;cursor:pointer;position:relative;
+  transition:border-color .28s,box-shadow .32s,transform .32s cubic-bezier(.22,.9,.3,1),background .3s;
+}
+.card:hover{border-color:var(--line-2);box-shadow:var(--shadow);transform:translateY(-3px)}
+.c-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.c-u{font-size:9.5px;letter-spacing:.22em;color:var(--silk)}
+.c-pip{width:6px;height:6px;border-radius:50%;margin-left:auto}
+.c-st{font-size:9.5px;letter-spacing:.16em;color:var(--ink-3)}
+.c-title{font-family:var(--mono);font-size:21px;letter-spacing:-.012em;color:var(--ink);margin:0 0 7px;font-weight:500}
+.c-head{font-family:var(--sans);font-size:14px;line-height:1.54;color:var(--ink-2);margin:0}
+.c-stat{
+  display:inline-block;margin-top:13px;font-size:11px;letter-spacing:.07em;
+  color:var(--signal);background:var(--signal-bg);border-radius:4px;padding:4px 9px;
+}
+.c-more{
+  margin-top:15px;font-size:10.5px;letter-spacing:.16em;color:var(--ink-3);
+  display:flex;align-items:center;gap:7px;transition:color .25s;
+}
+.card:hover .c-more{color:var(--signal)}
+.c-more .chev{transition:transform .34s cubic-bezier(.22,.9,.3,1)}
+.comp.open .c-inner{padding-top:19px;margin-top:17px;border-top:1px solid var(--line)}
+.c-inner p{font-family:var(--sans);font-size:13.5px;line-height:1.74;color:var(--ink-2);margin:0 0 15px}
+.c-inner p:last-of-type{margin-bottom:18px}
+.c-inner code{font-family:var(--mono);font-size:12px;background:var(--surface-2);border-radius:3px;padding:1px 5px;color:var(--ink)}
+.c-inner em{color:var(--ink);font-style:italic}
+.meta .r{display:flex;justify-content:space-between;gap:16px;padding:6px 0;font-size:11px;letter-spacing:.03em;border-top:1px dotted var(--line)}
+.meta .r:first-child{border-top:0}
+.meta .k{color:var(--ink-3)}
+.meta .v{color:var(--ink-2);text-align:right}
+.meta .v.hi{color:var(--signal)}
+.demo{border:1px solid var(--line);border-radius:5px;padding:13px 14px;margin:0 0 17px;background:var(--surface-2);font-size:11.5px;line-height:1.85}
+.demo .lbl{display:block;font-size:9px;letter-spacing:.2em;color:var(--silk);margin-bottom:4px}
+.demo .arrow{display:block;color:var(--silk);margin:8px 0;letter-spacing:.3em}
+.demo mark{background:var(--signal-bg);color:var(--signal);padding:1px 4px;border-radius:3px}
+/* ══════════════ marquee (lives in the card's edge connector) ══════════════ */
+.marq{display:flex;white-space:nowrap;animation:slide 76s linear infinite;will-change:transform}
+.edge:hover .marq{animation-play-state:paused}
+.marq span{font-size:10.5px;letter-spacing:.12em;color:var(--ink-2);padding:0 15px;transition:color .2s}
+.marq span:hover{color:var(--signal)}
+.marq span::before{content:"·";margin-right:15px;color:var(--line-2)}
+@keyframes slide{to{transform:translateX(-50%)}}
+/* ══════════════ the descent ══════════════ */
+/* beneath the board it is always dark — you have left the lit side of it */
+.under{
+  --under-bg:#0e1216;
+  position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;
+  padding:110px 24px;overflow:hidden;margin-top:30px;
+  background:var(--under-bg);border-top:1px solid var(--line);
+}
+.field{
+  position:absolute;inset:0;font-family:var(--mono);font-size:11px;line-height:2.1;
+  color:#ffb347;letter-spacing:.42em;white-space:pre;user-select:none;
+  padding:8px;overflow:hidden;
+  mask-image:radial-gradient(ellipse 84% 76% at 50% 50%,transparent 26%,#000 78%);
+  -webkit-mask-image:radial-gradient(ellipse 84% 76% at 50% 50%,transparent 26%,#000 78%);
+}
+.field div{opacity:.14;animation:flick 8s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:.07}50%{opacity:.26}}
+.under-grid{
+  position:relative;z-index:2;width:min(1200px,100%);
+  display:grid;grid-template-columns:1fr auto 1fr;gap:0 44px;align-items:stretch;
+}
+.under-copy{
+  align-self:center;text-align:left;padding:20px 10px;
+}
+/* the separator: a pawn, made of the same stuff as everything else */
+.pawn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.pawn .rail{
+  flex:1;width:1px;min-height:40px;
+  background:linear-gradient(180deg,transparent,rgba(255,179,71,.34),transparent);
+}
+.pawn pre{
+  /* small, dense glyphs and a sub-1 line-height so the rows close into a
+     solid shape; the gradient gives it form so it reads as an object first
+     and as characters second */
+  margin:0;font-family:var(--mono);font-size:9px;line-height:.78;
+  letter-spacing:0;user-select:none;white-space:pre;
+  background:linear-gradient(170deg,#ffe0b0 0%,#ffb347 38%,#d98a2b 72%,#8a5312 100%);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 16px rgba(255,179,71,.28));
+}
+/* the electrified resume: a pulse train, one pulse per transition */
+.resume{align-self:center;padding:20px 4px}
+/* the card shows a slice; the rest is one click away */
+.rz-scroll{
+  position:relative;max-height:420px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:rgba(255,179,71,.3) transparent;
+  mask-image:linear-gradient(180deg,#000 88%,transparent);
+  -webkit-mask-image:linear-gradient(180deg,#000 88%,transparent);
+}
+/* the full trace, in a modal — it opens from under the board, so it stays
+   down there rather than flashing the page theme back at you */
+/* .sheet is declared later in this file, so match both classes to win the tie */
+.sheet.cv-sheet{background:#141a20;border-color:rgba(255,255,255,.2)}
+.under-copy p{color:#b9c2cd!important}
+.under-copy .big{color:#fff!important}
+.under-copy .sig{color:#ffb347!important}
+.under-copy p{
+  font-family:var(--sans);font-size:clamp(15px,2vw,17px);line-height:1.94;color:var(--ink-2);
+  margin:0 0 22px;
+}
+.js .under-copy p{opacity:.13;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease}
+.js .under.in p{opacity:1;transform:none}
+.under.in p:nth-of-type(1){transition-delay:.1s}
+.under.in p:nth-of-type(2){transition-delay:.5s}
+.under.in p:nth-of-type(3){transition-delay:.95s}
+.under.in p:nth-of-type(4){transition-delay:1.4s}
+.under-copy .big{color:var(--ink);font-size:clamp(18px,2.6vw,23px);font-weight:500;line-height:1.5}
+.under-copy .sig{color:var(--signal)}
+/* ── the quote, rotated per visit ── */
+.bq{margin:0;max-width:33ch}
+.bq .q{
+  font-family:var(--sans);font-size:clamp(18px,2.2vw,24px);line-height:1.5;
+  color:#eef2f6!important;margin:0 0 20px;font-weight:400;letter-spacing:-.005em;
+}
+.bq cite{
+  display:block;font-style:normal;font-family:var(--mono);
+  font-size:11px;letter-spacing:.13em;color:#ffb347;opacity:.9;
+}
+.bq cite span{display:block;margin-top:6px;color:#68727e;font-size:10px;letter-spacing:.1em}
+.js .under-copy .bq{opacity:.13;transform:translateY(8px);transition:opacity .75s ease,transform .75s ease}
+.js .under.in .bq{opacity:1;transform:none;transition-delay:.15s}
+/* ── datasheet: the short version, beside the pawn ── */
+.ds-head{display:flex;align-items:center;gap:11px;margin-bottom:20px;
+  font-size:9.5px;letter-spacing:.24em;color:#ffb347;opacity:.85}
+.resume p{font-family:var(--sans);font-size:14px;line-height:1.74;color:#aab4c0;margin:0 0 15px}
+/* ── the resume, as a page of its own ── */
+.cvpage{background:var(--bg-2);border-top:1px solid var(--line);padding:78px 24px 88px}
+@media (max-width:840px){
+  .cvpage{padding:56px 16px 64px}
+}
+/* the page ends down here, still under the board */
+.foot{
+  text-align:center;padding:54px 24px 78px;background:#0e1216;
+  font-size:10.5px;letter-spacing:.2em;color:#5d6773;
+}
+/* ══════════════ the full list, grouped ══════════════ */
+.sheet{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.97);
+  width:min(640px,92vw);max-height:84svh;z-index:50;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:11px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .24s cubic-bezier(.22,.9,.3,1);
+}
+.sheet.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+/* focus lands on the dialog itself, not its close button, so Enter cannot
+   activate that button as its default action and shut the dialog instantly */
+.sheet:focus{outline:none}
+.sheet-top{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  padding:22px 24px 16px;border-bottom:1px solid var(--line);
+}
+.x{
+  flex:none;background:none;border:1px solid var(--line);color:var(--ink-3);
+  width:27px;height:27px;border-radius:5px;cursor:pointer;font-family:var(--mono);
+  font-size:14px;line-height:1;transition:color .2s,border-color .2s,background .2s;
+}
+.x:hover{color:var(--ink);border-color:var(--line-2);background:var(--surface-2)}
+.x:focus{outline:none}
+.x:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.sheet-top h3{font-family:var(--mono);font-size:16px;font-weight:500;margin:0 0 5px;color:var(--ink)}
+.sheet-top p{font-family:var(--sans);font-size:12.5px;color:var(--ink-3);margin:0}
+/* contain stops the scroll chaining to the page once this hits its end */
+.sheet-in{padding:24px 24px 26px;overflow-y:auto;overscroll-behavior:contain}
+.sheet-in:focus{outline:none}
+.sheet-core{display:grid;grid-template-columns:repeat(6,1fr);gap:19px 8px}
+.sheet-core .g{display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--ink-3);cursor:default}
+.sheet-core .g svg{
+  width:25px;height:25px;stroke:currentColor;fill:none;
+  stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;
+  transition:color .22s,transform .26s cubic-bezier(.22,.9,.3,1);
+}
+.sheet-core .g span{font-size:8.5px;letter-spacing:.11em;color:var(--silk);white-space:nowrap;transition:color .22s}
+.sheet-core .g:hover{color:var(--signal)}
+.sheet-core .g:hover svg{transform:translateY(-3px)}
+.sheet-core .g:hover span{color:var(--ink-2)}
+.sheet-rule{height:1px;background:var(--line);margin:26px 0}
+.cat + .cat{margin-top:22px}
+.cat-h{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.cat-h svg{
+  width:19px;height:19px;flex:none;stroke:var(--signal);fill:none;
+  stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;
+}
+.cat-h b{font-size:10.5px;letter-spacing:.09em;color:var(--ink-2);font-weight:500}
+.cat-h i{flex:1;height:1px;background:var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding-left:28px}
+.chips span{
+  font-size:11.5px;letter-spacing:.03em;color:var(--ink-2);
+  border:1px solid var(--line);border-radius:5px;padding:4px 10px;
+  background:var(--surface-2);transition:.2s;
+}
+.chips span:hover{color:var(--signal);border-color:var(--signal)}
+/* ══════════════ command palette ══════════════ */
+.scrim{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 55%,transparent);backdrop-filter:blur(4px);z-index:49;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.pal{
+  position:fixed;top:17vh;left:50%;transform:translateX(-50%) scale(.97);width:min(540px,92vw);z-index:50;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:10px;overflow:hidden;
+  box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
+}
+.pal.on{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}
+.pal input{width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:16px 18px;color:var(--ink);font-family:var(--mono);font-size:14px;outline:none}
+.pal input::placeholder{color:var(--ink-3)}
+.pal ul{list-style:none;margin:0;padding:6px;max-height:320px;overflow-y:auto;overscroll-behavior:contain}
+.pal li{padding:10px 12px;border-radius:6px;cursor:pointer;display:flex;align-items:baseline;gap:11px;font-size:13px;color:var(--ink-2)}
+.pal li .du{font-size:9.5px;color:var(--silk);letter-spacing:.16em;width:20px;flex:none}
+.pal li .dh{font-family:var(--sans);font-size:11.5px;color:var(--ink-3);margin-left:auto;text-align:right}
+.pal li[aria-selected="true"]{background:var(--signal-bg);color:var(--ink)}
+.pal li[aria-selected="true"] .du{color:var(--signal)}
+.pal li.hd{
+  font-size:9px;letter-spacing:.22em;color:var(--silk);text-transform:uppercase;
+  padding:12px 12px 5px;cursor:default;pointer-events:none;
+}
+.pal li.hd:first-child{padding-top:6px}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .comp{opacity:1;transform:none}
+  .under p{opacity:1;transform:none}
+}
+@media (max-width:840px){
+  .board{padding:0 18px 40px}
+  /* spine moves to the left edge; every component hangs off the same side */
+  .spine{left:26px;transform:none;width:54px}
+  .comp,.comp.r{width:auto;margin-left:116px;margin-bottom:26px}
+  .comp.l .conn,.comp.r .conn{left:auto;right:100%;transform:scaleX(-1);width:52px;top:34px}
+  .spine-tag{display:none}
+  .card{padding:17px 18px 16px}
+  .c-title{font-size:19px}
+  .board-head{padding-bottom:46px}
+  .landing{padding:76px 16px 70px}
+  .namecard{padding:20px 22px 0;border-radius:8px}
+  .edge{margin:26px -22px 0;height:40px;width:calc(100% + 44px)}
+  .edge-hint{padding:0 12px 0 24px;font-size:8.5px}
+  .chips{padding-left:0}
+  .under{padding:86px 18px}
+  .under-grid{grid-template-columns:1fr;gap:0}
+  .under-copy{padding:8px 0}
+  .pawn{margin:38px auto;min-height:190px}
+  .pawn .rail{min-height:34px;max-height:64px}
+  .resume{padding:8px 0}
+  .sheet-core{grid-template-columns:repeat(4,1fr);gap:17px 6px}
+  .sheet-in{padding:20px 18px 24px}
+  .sheet-top{padding:18px 18px 14px}
+  .nc-top{margin-bottom:22px}
+  .drop{height:62px}
+  .core{grid-template-columns:repeat(4,1fr);gap:18px 6px;margin-top:28px;padding-top:24px}
+  .core .g svg{width:24px;height:24px}
+}
+
+/* ══════════════ datasheet ══════════════ */
+.ds-head{display:flex;align-items:center;gap:11px;margin-bottom:20px;
+  font-size:9.5px;letter-spacing:.24em;color:#ffb347;opacity:.85}
+.ds-head i{flex:1;height:1px;background:rgba(255,179,71,.25)}
+.resume p{font-family:var(--sans);font-size:14px;line-height:1.74;color:#aab4c0;margin:0 0 15px}
+.ds-btn{display:inline-block;margin-top:10px;text-decoration:none;
+  border:1px solid rgba(255,179,71,.4);border-radius:6px;padding:10px 18px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:#ffc470;
+  transition:background .22s,border-color .22s,color .22s}
+.ds-btn:hover{background:rgba(255,179,71,.12);border-color:#ffb347;color:#fff}
+
+/* ══════════════ footer ══════════════ */
+.foot{text-align:center;padding:54px 24px 78px;background:#0e1216;
+  font-size:10.5px;letter-spacing:.2em;color:#5d6773}
+.socials{display:flex;justify-content:center;gap:12px;margin-bottom:28px}
+.soc{display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  border:1px solid #262d36;border-radius:6px;padding:8px 14px;
+  color:#8d97a3;font-size:10.5px;letter-spacing:.14em;transition:.22s}
+.soc svg{width:16px;height:16px;stroke:currentColor;fill:none;
+  stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.soc:hover{color:#ffb347;border-color:rgba(255,179,71,.5);background:rgba(255,179,71,.07)}
+.up-link{color:#8d97a3;text-decoration:none;border-bottom:1px solid #2a3038;padding-bottom:2px;transition:.2s}
+.up-link:hover{color:#ffb347;border-color:#ffb347}
+.made{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;
+  margin-top:26px;font-size:10.5px;letter-spacing:.14em;color:#5d6773}
+.made .binline{opacity:.55}
+.made .binline:hover,.made .binline:focus-visible{opacity:1}
+
+/* ══════════════ /resume ══════════════ */
+.cvpage{background:var(--bg-2);padding:78px 24px 34px}
+.cv-wrap{max-width:820px;margin:0 auto;background:var(--surface);
+  border:1px solid var(--line);border-radius:10px;padding:3.55em 4em 4em;box-shadow:var(--shadow);
+  font-size:var(--cv-base,13px)}
+.cv-back{display:inline-flex;align-items:center;gap:8px;margin-bottom:1.7em;
+  font-family:var(--mono);font-size:.81em;letter-spacing:.14em;color:var(--ink-3);
+  text-decoration:none;transition:color .2s}
+.cv-back:hover{color:var(--signal)}
+.cv-top h1{font-family:var(--sans);font-size:2.31em;font-weight:700;margin:0 0 8px;color:var(--ink);letter-spacing:-.01em}
+.cv-roles{font-family:var(--sans);font-size:12.5px;letter-spacing:.09em;color:var(--ink-3);margin:0 0 8px;line-height:1.7}
+.cv-line{font-family:var(--sans);font-size:1em;color:var(--ink-2);margin:0}
+.cvpage h2{font-family:var(--sans);font-size:1em;font-weight:700;letter-spacing:.1em;color:var(--ink);
+  margin:32px 0 12px;padding-bottom:5px;border-bottom:1.5px solid var(--line-2)}
+.cvpage h3{font-family:var(--sans);font-size:1.04em;font-style:italic;font-weight:700;color:var(--ink);margin:16px 0 7px}
+.cv-job-h{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:4px}
+.cv-job-h b{display:block;font-family:var(--sans);font-size:1.12em;color:var(--ink)}
+.cv-job-h span{display:block;font-family:var(--sans);font-size:1em;color:var(--ink-2)}
+.cv-job-h .r{text-align:right}
+.cv-job-h .r b,.cv-job-h .r span{font-weight:400;color:var(--ink-2);font-size:1em}
+.cvpage ul{margin:0;padding-left:19px}
+.cvpage li{font-family:var(--sans);font-size:1em;line-height:1.62;color:var(--ink-2);margin-bottom:7px}
+.cvpage li b{color:var(--ink);font-weight:600}
+.cv-skills{display:grid;grid-template-columns:11.5em 1fr;gap:3px 16px;margin:0}
+.cv-skills dt{font-family:var(--sans);font-size:.85em;font-weight:700;letter-spacing:.04em;color:var(--ink);padding-top:2px}
+.cv-skills dd{font-family:var(--sans);font-size:.96em;line-height:1.6;color:var(--ink-2);margin:0 0 6px}
+.cv-edu{font-family:var(--sans);font-size:1em;color:var(--ink-2);margin:0}
+.cv-edu b{color:var(--ink)}
+.cv-edu span{color:var(--ink-3);font-size:.92em;margin-left:6px}
+@media (max-width:840px){
+  .cvpage{padding:70px 16px 26px}
+  .cv-wrap{padding:2.15em 1.7em 2.6em}
+  .cv-top h1{font-size:1.85em}
+  .cv-skills{grid-template-columns:1fr;gap:1px}
+  .cv-skills dt{padding-top:8px}
+  .cv-job-h .r{text-align:left}
+}
+
+/* ── the card is a native <details>: it opens with JS off ── */
+.card > summary{list-style:none;cursor:pointer;display:block}
+.card > summary::-webkit-details-marker{display:none}
+.card > summary:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:5px}
+.card[open]{border-color:var(--signal);box-shadow:var(--shadow)}
+.comp:has(.card[open]) .conn .tr{stroke:var(--signal)}
+.comp:has(.card[open]) .conn .via{stroke:var(--signal);fill:var(--signal)}
+.card[open] .c-more .chev{transform:rotate(180deg)}
+.lbl-close{display:none}
+.card[open] .lbl-open{display:none}
+.card[open] .lbl-close{display:inline}
+.c-inner{padding-top:19px;margin-top:17px;border-top:1px solid var(--line)}
+
+/* smooth open where the browser supports it; instant everywhere else */
+@supports (interpolate-size: allow-keywords){
+  :root{interpolate-size:allow-keywords}
+  .card::details-content{
+    block-size:0;overflow:hidden;
+    transition:block-size .42s cubic-bezier(.22,.9,.3,1),content-visibility .42s allow-discrete;
+  }
+  .card[open]::details-content{block-size:auto}
+}
+
+/* ── résumé text size ──
+   /resume is a fixed-height column: the document scrolls inside .cvscroll and
+   stops above the control band, so nothing is ever hidden behind it. The band
+   itself is the same colour as the page, so only the pill reads. */
+.resume-page{height:100svh;display:flex;flex-direction:column;overflow:hidden}
+.cvscroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.zoombar{
+  flex:none;display:flex;align-items:center;justify-content:center;
+  padding:11px 16px calc(11px + env(safe-area-inset-bottom, 0px));
+  background:var(--bg-2);
+}
+.zgroup{
+  display:inline-flex;align-items:center;gap:2px;padding:3px 5px;
+  background:var(--surface);border:1px solid var(--line);border-radius:999px;
+}
+.zbtn{
+  width:29px;height:29px;border:0;border-radius:50%;cursor:pointer;
+  background:none;color:var(--ink-2);font-family:var(--mono);font-size:15px;
+  line-height:1;display:grid;place-items:center;transition:background .18s,color .18s;
+}
+.zbtn:hover:not(:disabled){background:var(--surface-2);color:var(--ink)}
+.zbtn:disabled{opacity:.3;cursor:default}
+.zbtn:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+.zval{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--ink-3);
+  min-width:4.4ch;text-align:center;cursor:default;user-select:none;
+}

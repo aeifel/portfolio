@@ -1,0 +1,79 @@
+---
+import { CORE, GROUPS } from '../data/skills';
+// The whole sheet is rendered at build time. The only JavaScript is a
+// class toggle and a scroll lock — nothing here is built in the browser.
+---
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="sheet" tabindex="-1" role="dialog" aria-modal="true" aria-label="every technology">
+  <div class="sheet-top">
+    <div><h3>everything on the board</h3></div>
+    <button class="x" id="sheetX" type="button" aria-label="close">×</button>
+  </div>
+  <div class="sheet-in" id="sheetIn" tabindex="-1">
+    <div class="sheet-core">
+      {CORE.map((m) => (
+        <div class="g" title={m.id}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={m.art} />
+          <span>{m.label}</span>
+        </div>
+      ))}
+    </div>
+    <div class="sheet-rule"></div>
+    {GROUPS.map((g) => (
+      <div class="cat">
+        <div class="cat-h">
+          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={g.art} />
+          <b>{g.name}</b><i></i>
+        </div>
+        <div class="chips">{g.items.map((t) => <span>{t}</span>)}</div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const sheet = document.getElementById('sheet');
+    const scrim = document.getElementById('scrim');
+    const inner = document.getElementById('sheetIn');
+    const edge = document.getElementById('edge');
+    if (!sheet || !edge) return;
+
+    let locked = false;
+    const lock = () => {
+      if (locked) return;
+      locked = true;
+      const sbw = innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.setProperty('--sbw', sbw + 'px');
+      document.documentElement.style.overflow = 'hidden';
+      if (sbw > 0) document.body.style.paddingRight = sbw + 'px';
+    };
+    const unlock = () => {
+      if (!locked) return;
+      locked = false;
+      document.documentElement.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.documentElement.style.setProperty('--sbw', '0px');
+    };
+
+    const open = () => {
+      lock();
+      sheet.classList.add('on');
+      scrim.classList.add('on');
+      inner.scrollTop = 0;
+      inner.focus({ preventScroll: true });
+    };
+    const close = () => {
+      if (!sheet.classList.contains('on')) return;
+      sheet.classList.remove('on');
+      scrim.classList.remove('on');
+      unlock();
+    };
+
+    edge.addEventListener('click', open);
+    document.getElementById('sheetX').addEventListener('click', close);
+    scrim.addEventListener('click', close);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  })();
+</script>

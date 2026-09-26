@@ -1,0 +1,32 @@
+---
+import type { BoardComponent } from '../data/board';
+import { STATUS_LABEL } from '../data/board';
+interface Props { node: BoardComponent; index: number }
+const { node, index } = Astro.props;
+const side = index % 2 ? 'r' : 'l';
+const u = `U${index + 1}`;
+const pip = { live: 'var(--live)', warm: 'var(--warm)', draft: 'var(--draft)', always: 'var(--warm)' }[node.status];
+---
+<article class={`comp ${side}`} id={node.id} data-n={node.id}>
+  <svg class="conn" viewBox="0 0 68 56" preserveAspectRatio="none" aria-hidden="true">
+    <path class="tr" id={`p-${node.id}`} d="M0,14 L28,14 L46,34 L68,34" />
+    <circle class="via" cx="68" cy="34" r="3.4" />
+  </svg>
+
+  <details class="card">
+    <summary>
+      <div class="c-top">
+        <span class="c-u">{u}</span>
+        <span class="c-st">{STATUS_LABEL[node.status]}</span>
+        <span class="c-pip" style={`background:${pip}`}></span>
+      </div>
+      <h2 class="c-title">{node.title}</h2>
+      <p class="c-head">{node.head}</p>
+      {node.stat && <span class="c-stat">{node.stat}</span>}
+      <span class="c-more"><span class="chev">⌄</span> <span class="lbl-open">OPEN</span><span class="lbl-close">CLOSE</span></span>
+    </summary>
+    <div class="c-inner">
+      {node.body.map((p) => <p set:html={p} />)}
+    </div>
+  </details>
+</article>

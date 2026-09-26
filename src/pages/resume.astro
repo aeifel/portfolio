@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Bar from '../components/Bar.astro';
+import ZoomBar from '../components/ZoomBar.astro';
+import { RESUME } from '../data/resume';
+---
+<Base title="hari prasath — resume" description="Hari Prasath S — AI engineer. Resume." bodyClass="resume-page">
+  <Bar solid />
+  <div class="cvscroll">
+  <main class="cvpage">
+    <div class="cv-wrap">
+      <a class="cv-back" href="/">&larr; back to the board</a>
+
+      <header class="cv-top">
+        <h1>{RESUME.name}</h1>
+      </header>
+
+      <h2>EXPERIENCE</h2>
+      <div class="cv-job-h">
+        <div><b>{RESUME.job.title}</b></div>
+      </div>
+      {RESUME.sections.map((s) => (
+        <>
+          <h3>{s.heading}</h3>
+          <ul>{s.bullets.map((b) => <li><b>{b.lead}</b><span set:html={b.rest} /></li>)}</ul>
+        </>
+      ))}
+
+      <h2>{RESUME.project.heading}</h2>
+      <ul>{RESUME.project.bullets.map((b) => <li><b>{b.lead}</b><span set:html={b.rest} /></li>)}</ul>
+
+      <h2>TECHNICAL SKILLS</h2>
+      <dl class="cv-skills">
+        {RESUME.skills.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}
+      </dl>
+
+    </div>
+  </main>
+  </div>
+  <ZoomBar />
+</Base>

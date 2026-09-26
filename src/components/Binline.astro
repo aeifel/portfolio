@@ -1,0 +1,11 @@
+---
+import { toBin, toHex } from '../lib/encode';
+interface Props { text: string; encoding?: 'hex' | 'bin'; id?: string; class?: string }
+const { text, encoding = 'hex', id, class: cls = '' } = Astro.props;
+// Encoded at build time — no client JS needed for this at all.
+const digits = encoding === 'hex' ? toHex(text) : toBin(text);
+---
+<span class={`binline ${cls}`} id={id} tabindex="0" role="note" aria-label={text}>
+  <span class="digits">{digits}</span>
+  <span class="plain">{text}</span>
+</span>

@@ -1,0 +1,36 @@
+---
+import { COMPONENTS } from '../data/board';
+import { BOARD_LINE } from '../data/intro';
+import BoardCard from './BoardCard.astro';
+import Binline from './Binline.astro';
+---
+<section class="board" id="board">
+  <div class="board-head">
+    <div class="h">{COMPONENTS.length} COMPONENTS</div>
+    <p class="p"><Binline text={BOARD_LINE} encoding="hex" /></p>
+  </div>
+
+  <div class="rows">
+    <div class="spine" aria-hidden="true"><div class="spine-bits" id="spineBits"></div></div>
+    <div class="spine-tag" aria-hidden="true"><span>BIT BUS</span></div>
+    {COMPONENTS.map((node, i) => <BoardCard node={node} index={i} />)}
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const bits = (n) => Array.from({ length: n }, () => (Math.random() > 0.5 ? '1' : '0')).join('');
+    const s = document.getElementById('spineBits');
+    if (s) { const t = bits(400); s.textContent = t + t; }
+
+    const comps = [...document.querySelectorAll('.comp')];
+    if (!('IntersectionObserver' in window)) { comps.forEach((c) => c.classList.add('in')); return; }
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }), { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
+    comps.forEach((c) => io.observe(c));
+    setTimeout(() => comps.forEach((c) => {
+      if (c.getBoundingClientRect().top < innerHeight) c.classList.add('in');
+    }), 2000);
+  })();
+</script>

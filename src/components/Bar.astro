@@ -1,0 +1,24 @@
+---
+// Transparent until the page scrolls, then solid so content passes underneath
+// cleanly. `solid` pins it on for pages whose content scrolls in a container
+// rather than on the window, where there is no window scroll to listen to.
+interface Props { solid?: boolean }
+const { solid = false } = Astro.props;
+---
+<header class={`bar${solid ? ' on' : ''}`} id="bar">
+  <span class="who">hari prasath</span>
+  <span class="sp"></span>
+  <button class="btn" id="themeBtn" type="button" aria-label="toggle theme">theme</button>
+</header>
+
+{!solid && (
+  <script is:inline>
+    (() => {
+      const bar = document.getElementById('bar');
+      if (!bar) return;
+      const sync = () => bar.classList.toggle('on', scrollY > 4);
+      addEventListener('scroll', sync, { passive: true });
+      sync();
+    })();
+  </script>
+)}

@@ -1,0 +1,40 @@
+---
+// Sits at the bottom, where a thumb already is on a phone and where document
+// viewers put their controls on a desktop. Opaque, so text scrolling beneath
+// it never shows through.
+---
+<div class="zoombar">
+  <div class="zgroup" role="group" aria-label="text size">
+    <button class="zbtn" id="zOut" type="button" aria-label="smaller text">&minus;</button>
+    <span class="zval" id="zVal">100%</span>
+    <button class="zbtn" id="zIn" type="button" aria-label="larger text">+</button>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    // Scales the type inside the card. The column keeps its width, so lines
+    // reflow rather than the page scrolling sideways.
+    const BASE = 13, MIN = 10, MAX = 22;
+    const root = document.documentElement;
+    const val = document.getElementById('zVal');
+    const out = document.getElementById('zOut');
+    const inc = document.getElementById('zIn');
+    let size = BASE;
+    try { const v = +localStorage.getItem('cvBase'); if (v >= MIN && v <= MAX) size = v; } catch (e) {}
+
+    const apply = () => {
+      root.style.setProperty('--cv-base', size + 'px');
+      val.textContent = Math.round((size / BASE) * 100) + '%';
+      out.disabled = size <= MIN;
+      inc.disabled = size >= MAX;
+      try { localStorage.setItem('cvBase', String(size)); } catch (e) {}
+    };
+    const step = (d) => { size = Math.min(MAX, Math.max(MIN, size + d)); apply(); };
+
+    inc.addEventListener('click', () => step(1));
+    out.addEventListener('click', () => step(-1));
+    val.addEventListener('dblclick', () => { size = BASE; apply(); });
+    apply();
+  })();
+</script>

@@ -1,0 +1,73 @@
+---
+import { NAME, INTRO, MOT } from '../data/intro';
+import { CORE, TICKER } from '../data/skills';
+const count = CORE.length + TICKER.length;
+---
+<section class="landing">
+  <div class="namecard">
+    <div class="nc-top">
+      <span class="c-u">0x00</span>
+      <span class="c-st">POWERED</span>
+      <span class="c-pip" style="background:var(--live)"></span>
+    </div>
+
+    <h1 class="decode" id="decode" aria-label={NAME}>{NAME}</h1>
+
+    <div class="intro">
+      {INTRO.map((p, i) => <p class={i === 0 ? 'lead' : ''} set:html={p} />)}
+      <blockquote class="quote">
+        <span class="tag">{MOT.label}</span>
+        <em>{`“${MOT.text}”`}</em>
+      </blockquote>
+    </div>
+
+    <div class="core" aria-label="core technologies">
+      {CORE.map((m) => (
+        <div class="g" title={m.id}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={m.art} />
+          <span>{m.label}</span>
+        </div>
+      ))}
+    </div>
+
+    <button class="edge" id="edge" type="button" aria-label="see every technology, grouped">
+      <span class="marq-wrap">
+        <span class="marq">{[...TICKER, ...TICKER].map((t) => <span>{t}</span>)}</span>
+      </span>
+      <span class="edge-hint">SEE ALL <b>({count})</b></span>
+    </button>
+  </div>
+
+  <div class="drop" aria-hidden="true"><div class="drop-bits" id="dropBits"></div></div>
+  <div class="cue arrow-only"><span class="arr">↓</span></div>
+</section>
+
+<script is:inline>
+  (() => {
+    const bits = (n) => Array.from({ length: n }, () => (Math.random() > 0.5 ? '1' : '0')).join('');
+    const d = document.getElementById('dropBits');
+    if (d) { const s = bits(60); d.textContent = s + s; }
+
+    // The name resolves out of binary, one character at a time.
+    const el = document.getElementById('decode');
+    if (!el || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    // Play once per browser session. Coming back from /resume is a fresh page
+    // load, so without this the name would re-decode every single time.
+    try { if (sessionStorage.getItem('decoded')) return; sessionStorage.setItem('decoded', '1'); } catch (e) {}
+    const NAME = el.textContent || '';
+    const spans = [...NAME].map((ch) => {
+      const s = document.createElement('span');
+      s.className = 'c b';
+      s.textContent = ch === ' ' ? ' ' : Math.random() > 0.5 ? '1' : '0';
+      return s;
+    });
+    el.textContent = '';
+    spans.forEach((s) => el.append(s));
+    let done = 0;
+    const tick = setInterval(() => {
+      spans.forEach((s, i) => { if (i >= done && NAME[i] !== ' ') s.textContent = Math.random() > 0.5 ? '1' : '0'; });
+      if (done < NAME.length) { spans[done].textContent = NAME[done]; spans[done].classList.remove('b'); done++; }
+      else clearInterval(tick);
+    }, 72);
+  })();
+</script>

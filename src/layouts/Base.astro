@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+interface Props { title: string; description?: string; bodyClass?: string }
+const { title, description = 'Hari Prasath — engineer. Systems, agents, real-time video.', bodyClass = '' } = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  {/* GitHub Pages cannot set response headers, so the policy goes in a meta
+      tag. 'unsafe-inline' is required while the scripts and styles are inline;
+      frame-ancestors and nosniff only work as real headers, so they need a
+      proxy or a different host. */}
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+  />
+  <script is:inline>
+    // Before first paint: opt into motion only when JS is on and motion is welcome,
+    // and restore the stored theme so there is no flash of the wrong palette.
+    if (!matchMedia('(prefers-reduced-motion:reduce)').matches)
+      document.documentElement.classList.add('js');
+    try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+  </script>
+</head>
+<body class={bodyClass}>
+  <slot />
+  <script is:inline>
+    (() => {
+      const root = document.documentElement;
+      const btn = document.getElementById('themeBtn');
+      if (!btn) return;
+      const paint = () => { btn.textContent = root.dataset.theme === 'dark' ? '☾ dark' : '☀ light'; };
+      paint();
+      btn.addEventListener('click', () => {
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        paint();
+        try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+      });
+    })();
+  </script>
+</body>
+</html>
