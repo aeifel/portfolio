@@ -6,7 +6,7 @@ wired to a vertical bus of 1s and 0s that the page follows down to its ending.
 Astro + TypeScript, static output. **No JavaScript bundles are shipped** — only
 a handful of short inline scripts.
 
-Lives at **hpworks.dev**.
+Lives at **portfolio.hpworks.dev**.
 
 ## Running it
 
