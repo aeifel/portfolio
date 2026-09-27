@@ -104,6 +104,18 @@ For the apex (`hpworks.dev`) DNS does not permit a CNAME record, so that needs
 either `A` records to GitHub's four Pages IPs or an `ALIAS`/`ANAME` record if
 the registrar supports one.
 
+## Discoverability
+
+- `<title>` and `<meta name="description">` per page, taken from the site's own copy
+- Open Graph and Twitter card tags, so links unfurl in WhatsApp, LinkedIn, Slack
+  and elsewhere; the card image is `public/og.png` (1200×630)
+- JSON-LD `Person` in the layout, with `sameAs` pointing at GitHub and LinkedIn
+- `robots.txt` and `sitemap.xml`, both static
+- Canonical URL per page, derived from `site`
+
+Regenerating the card image: it is a screenshot of a standalone HTML template
+rendered at 1200×630. Keep the dimensions — most platforms crop anything else.
+
 ## Still to come
 
 - Projects section between the board and the footer (Delta lives there)
