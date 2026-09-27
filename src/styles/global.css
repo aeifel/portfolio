@@ -3,7 +3,7 @@
 :root{
   --bg:#eceff3; --bg-2:#e3e7ed; --surface:#fbfcfd; --surface-2:#f4f6f9;
   --line:rgba(22,30,42,.17); --line-2:rgba(22,30,42,.38);
-  --ink:#121820; --ink-2:#48525f; --ink-3:#727d8b; --silk:#95a0ae;
+  --ink:#121820; --ink-2:#48525f; --ink-3:#5c6573; --silk:#5c6773;
   --signal:#bf5316; --signal-2:#e0691f; --signal-bg:rgba(191,83,22,.10);
   --live:#16794a; --warm:#bf5316; --draft:#858f9c;
   --grid:rgba(22,30,42,.075); --shadow:0 1px 2px rgba(22,30,42,.05),0 12px 30px rgba(22,30,42,.07);
@@ -11,7 +11,7 @@
 [data-theme="dark"]{
   --bg:#171b22; --bg-2:#1c212a; --surface:#20262f; --surface-2:#262d37;
   --line:rgba(255,255,255,.19); --line-2:rgba(255,255,255,.38);
-  --ink:#f2f5f8; --ink-2:#aeb8c4; --ink-3:#828d9b; --silk:#626e7c;
+  --ink:#f2f5f8; --ink-2:#aeb8c4; --ink-3:#8a95a3; --silk:#8b98a7;
   --signal:#ffb347; --signal-2:#ffc470; --signal-bg:rgba(255,179,71,.13);
   --live:#4ade80; --warm:#ffb347; --draft:#828d9b;
   --grid:rgba(255,255,255,.07); --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 34px rgba(0,0,0,.34);
