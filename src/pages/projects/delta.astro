@@ -1,0 +1,356 @@
+---
+// The article is written here rather than in src/data because its copy and its
+// structure are the same thing — headings, an ordered pipeline and two pull
+// quotes do not survive being flattened into an array of strings.
+import Base from '../../layouts/Base.astro';
+import Bar from '../../components/Bar.astro';
+import ArchDiagram from '../../components/ArchDiagram.astro';
+---
+<Base
+  title="Delta — Hari Prasath"
+  description="Delta maintains a live, evidence-backed record of what is currently true about the things a person follows, and tells them when that record materially changes."
+  bodyClass="project-page"
+>
+  <Bar />
+<main class="wrap">
+  <a class="back-inline" href="/#projects">&larr; board</a>
+  <p class="eyebrow">PROJECT</p>
+  <h1>Delta</h1>
+  <p class="sub">A change intelligence platform</p>
+  <div class="stack">
+    <p class="stack-t">Python &middot; PostgreSQL + pgvector &middot; Kafka &middot; Debezium &middot; Redis &middot; Kubernetes (k3s) &middot; Terraform &middot; React</p>
+    <a class="repo" href="https://github.com/aeifel/delta" target="_blank" rel="noopener noreferrer"
+       aria-label="Open the Delta repository on GitHub (opens in a new tab)">
+      <svg class="repo-gh" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      <svg class="repo-out" viewBox="0 0 12 12" aria-hidden="true"><path d="M3.4 8.6 L8.6 3.4M4.6 3.4H8.6V7.4"/></svg>
+    </a>
+  </div>
+
+  <p class="lede">Delta maintains a live, evidence-backed record of what is currently true about
+  the things a person follows, and tells them when that record materially changes. The unit it
+  delivers is a <b>Change Event</b>: the believed value moved from A to B, it matters, and here
+  is the evidence behind it.</p>
+
+  <h2>THE PROBLEM</h2>
+  <p>Information about a technical ecosystem is abundant. The expensive work is not finding it.
+  It is continuously deciding whether something a person cares about actually changed, whether
+  that change matters, and what is different from before.</p>
+  <p>Release notes, documentation, advisories, repositories and feeds all produce overlapping
+  coverage of the same underlying occurrence. A keyword alert fires on a <em>mention</em>, which
+  is not the same as the thing itself having moved. An answer engine will tell you what is true
+  now if you ask it now, but it keeps no record of what it told you last time, so it cannot tell
+  you what changed in between. Either way the reader has to remember the previous state
+  themselves in order to judge whether an update means anything.</p>
+  <p>Holding that state is also what makes the awkward cases survivable. A source can retract a
+  story it published yesterday. An announcement can arrive days after the event it describes. A
+  feed can quietly start returning nothing at all while still reporting success. Alerting that
+  keeps no previous state cannot tell any of those apart from a genuinely quiet week.</p>
+  <p>The wedge is therefore <b>stateful change detection</b>: identify a material change in
+  something specific, show the transition from the previous state, and carry the evidence.</p>
+
+  <h2>WHAT DELTA TRACKS</h2>
+  <p>A topic is a subscription to a <b>canonical entity</b>, and the state belongs to the entity
+  rather than to each subscriber. This is the structural decision that makes the economics work:
+  the expensive processing happens once per entity, however many people follow it.</p>
+  <p>An entity is defined by its <b>coordinates</b> &mdash; its identity in someone else's
+  namespace, such as a GitHub repository, an OSV package or an endoflife.date product. Fetch URLs
+  are composed from those coordinates against allowlisted host templates, so adding an entity is
+  adding a row rather than authoring an integration. The same construction closes server-side
+  request forgery as a class rather than filtering for it: no URL Delta fetches is ever supplied
+  by a user.</p>
+  <p>Against each entity Delta holds a small set of <b>typed facts</b> &mdash; the current stable
+  version, open advisories, an end-of-life date and a handful of others &mdash; and every entity
+  declares which of them it supports. A fact type an entity does not declare cannot enter its
+  state and cannot produce a Change Event. That bound is what makes <em>material change</em>
+  something a rule can decide, rather than an open-ended comparison of two documents.</p>
+  <p><b>Absence is not removal.</b> If a source stops mentioning an advisory, it has not said the
+  advisory ended, so a fact leaves state only on positive evidence. An empty response from an
+  advisory API means the query failed, not that there are no advisories &mdash; and treating the
+  two as the same thing would turn one bad response into a burst of confident, wrong
+  &ldquo;resolved&rdquo; events across every entity that source feeds.</p>
+
+  <h2>THE PIPELINE</h2>
+  <p>One observation travels a fixed path from a public source to a delivered Change Event, and
+  the work is grouped by the service that performs it.</p>
+  <div class="flow">
+    <div class="flow-s">
+      <h3>delta-ingest</h3>
+      <ol>
+        <li>Picks a source that is due and fetches it with a conditional request, so a source
+          that has not changed costs almost nothing to check.</li>
+        <li>Validates that the response is healthy, applies the source's storage policy,
+          normalizes it into an observation, and fingerprints it so a repeat is recognised.</li>
+        <li><span class="tx">In a single transaction</span>, stores that observation together
+          with the intent to announce it.</li>
+      </ol>
+    </div>
+    <div class="flow-s">
+      <h3>delta-processing</h3>
+      <ol>
+        <li>Parses structured sources deterministically, with no model involved. The model is
+          used only for free text, and only where deterministic parsing found nothing.</li>
+        <li>Resolves which entity the observation is about by exact match on an external
+          identifier &mdash; never by similarity.</li>
+        <li>Groups observations that describe the same real-world occurrence, then decides
+          whether the change is material by looking it up in a rule table.</li>
+        <li>Compares the result against what Delta currently believes about that entity.</li>
+        <li><span class="tx">In a single transaction</span>, updates the fact, writes the Change
+          Event and its evidence, and writes the intent to announce it.</li>
+      </ol>
+    </div>
+    <div class="flow-s">
+      <h3>delta-delivery</h3>
+      <ol>
+        <li>Scores the event against each subscriber's preferences, applies each channel's
+          delivery policy, and sends it in-app and by email.</li>
+      </ol>
+    </div>
+  </div>
+  <p>Steps one to eight run <b>once per entity and read no user data at all</b>. Per-user work
+  begins only at step nine, after a Change Event already exists. That invariant is what keeps the
+  cost of a popular topic flat as its audience grows.</p>
+  <p>Step seven has three outcomes rather than two, and the third is easy to miss. If the value
+  differs, a new Change Event is created. If the value is unchanged but the observation belongs
+  to a fact Delta already holds, it is recorded as <em>corroboration</em> &mdash; the evidence and
+  confidence are strengthened and no event is raised. If it neither differs nor belongs to
+  anything known, nothing is recorded. All three mark the observation as processed, because an
+  observation that produced no claim may still have been handled perfectly. Plenty of legitimate
+  observations contain nothing material.</p>
+
+  <h2>WHERE THE MODEL IS ALLOWED TO ACT</h2>
+  <p>The model is an <b>uncertain parser, never an authority</b>. Structured sources are parsed
+  deterministically. AI extraction runs on free text only, and only when deterministic parsing
+  has produced nothing.</p>
+  <p>Four constraints are enforced in code rather than in prompt wording:</p>
+  <ul>
+    <li>Output must satisfy a strict schema; a parse failure is retried once, then abandoned.</li>
+    <li>The fact type must already be one the entity supports, so the model cannot widen the
+      state schema by inventing a new kind of fact.</li>
+    <li>A verbatim evidence quote must be present in the stored source content. A claim whose
+      quote cannot be found in the source is dropped as ungrounded.</li>
+    <li>Claims below the extraction-confidence threshold are kept as candidate evidence and are
+      never promoted into state.</li>
+  </ul>
+  <p>Model-reported confidence is treated as a rough ordering rather than a real probability, and
+  it may only ever cause a claim to be <em>rejected</em>. High confidence never buys a claim past
+  the schema, the fact-type check or the evidence quote.</p>
+  <p>Explanation generation runs after the Change Event has already been decided, and cannot
+  alter materiality, state or the diff. If it fails, the event is created with a deterministic
+  template summary instead. Prose is never on the correctness path. A user's preferences never
+  enter a prompt at all &mdash; relevance is arithmetic over a small profile, so personalisation
+  costs no inference and no user data ever reaches a model.</p>
+
+  <h2>THE OUTBOX</h2>
+  <p>Writing the new state to the database and announcing it on Kafka are two separate
+  operations, and either can fail without the other. One order of failure is worse than the rest.
+  The database commit succeeds, so the new value is now what Delta believes. The publish to Kafka
+  then fails, so nothing downstream ever hears about it.</p>
+  <p>Retrying does not rescue it. Re-running the same observation compares it against the state,
+  which already holds the new value, finds no difference, and correctly concludes there is
+  nothing to report. The Change Event is now permanently invisible: it happened, the record of it
+  is right, and no subscriber will ever be told. Sweeping for stragglers afterwards does not find
+  it either, because an entity with no pending work looks identical to an entity whose
+  observations genuinely produced nothing.</p>
+  <p>A <b>transactional outbox</b> removes the failure rather than compensating for it. The
+  intent to publish is written inside the same transaction as the state change, so the two either
+  both exist or neither does. If the process dies at any point afterwards, the outbox row
+  survives and a publisher retries it. Publication becomes at-least-once with no possibility of
+  loss, and consumers are idempotent, so a repeat is harmless.</p>
+  <p>It is also what makes a modest single-broker Kafka acceptable here: PostgreSQL holds both
+  the authoritative record and the intent to publish, so Kafka's contents can always be
+  re-derived.</p>
+
+  <h2>GUARANTEES STATED AS THEY ARE</h2>
+  <p>In-app delivery is effectively once. Delivery state is a database row and the feed is the
+  source of truth, so a missed real-time frame is reconciled the next time the feed is read.</p>
+  <p>Email is <b>at least once</b>, because a database row can be idempotent while an external
+  side effect cannot: the provider can accept a message and the process can die before the
+  delivery row is updated. Delta narrows that window by recording the attempt before making it,
+  and closes it entirely where the provider supports idempotency keys, using a key derived from
+  the user, the event and the channel. Where it cannot be closed, a duplicate is preferred to a
+  miss &mdash; a missed material change destroys trust, and a duplicate email is an annoyance.</p>
+  <p>Delivery failure never blocks state maintenance, because delivery sits downstream of truth.</p>
+
+  <h2>FAILING CLOSED</h2>
+  <p>Delta is a trust product, so uncertainty must never harden into an assertion. If the model
+  is unavailable, semantic work waits and no state is invented. A low-confidence extraction is
+  kept as candidate evidence rather than promoted. An observation about an entity that cannot be
+  resolved is stored but produces no claim. Sources that contradict each other keep the
+  contradiction and defer the transition rather than picking a winner. An event that is later
+  disproven is marked disputed, then retracted with the evidence that overturned it, and the
+  history shows that it happened.</p>
+  <div class="pull"><p>If something breaks while Delta is working out what is true, it stops and
+  records nothing. If something breaks while telling you about it, it keeps going and
+  retries.</p></div>
+  <p>The most dangerous failure carries no error at all. A source can return HTTP 200 with a body
+  that is stale, empty or malformed, and from the outside that is indistinguishable from a quiet
+  week. So a fetch is validated rather than trusted: transport failures, bodies that do not
+  parse, and a source that has gone quiet for longer than its expected cadence all mark it
+  <b>degraded</b>.</p>
+  <p>The distinction that matters is between a healthy source with nothing to report and a source
+  that has stopped reporting. The first is entirely normal &mdash; most sources are quiet most of
+  the time, and that quiet is real information. The second only resembles it. A degraded source
+  is surfaced to operators and to users, and is excluded from any conclusion that nothing
+  changed, so the fact that it said nothing is never counted as evidence that nothing
+  happened.</p>
+  <p>One alarm covers what no other signal can. If sources are healthy and yet no Change Event
+  has been produced anywhere for twenty-four hours, something has quietly stopped working. Every
+  other measurement confirms that the machinery ran; only this one asks whether the machinery
+  found anything.</p>
+
+  <h2>ARCHITECTURE</h2>
+  <p>Five application services and one static bundle. <code>delta-ingest</code> schedules and
+  fetches sources; <code>delta-processing</code> turns observations into state changes;
+  <code>delta-delivery</code> applies per-user relevance and sends; <code>delta-api</code> serves
+  every read, write and WebSocket frame; <code>delta-cdc-consumer</code> writes the reporting
+  projection; and <code>delta-web</code> hands out the compiled client and nothing else.</p>
+  <p>Two decisions shape the deployment. <b>Kubernetes runs compute, not state</b> &mdash;
+  application services, the model runtime and observability run in k3s, where independent
+  scaling, rollout isolation and failure isolation are genuinely useful, while PostgreSQL, Kafka,
+  Redis and Debezium run alongside on the same host under a container runtime. Running stateful
+  systems in Kubernetes adds operator complexity, storage orchestration and failure modes that a
+  single-node deployment gains nothing from. And <b>in-app delivery is not a direct call</b>:
+  delivery publishes to a Redis channel per user, and whichever API replica happens to hold that
+  socket forwards it, which is why Redis sits between them rather than beside the API.</p>
+
+  <figure class="figure">
+    <div class="dg-frame" id="dgFrame" role="button" tabindex="0"
+         aria-label="Enlarge the architecture diagram">
+      <span class="dg-zoom" aria-hidden="true">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 2h4v4M6 14H2v-4M14 2l-5 5M2 14l5-5"/>
+        </svg>ENLARGE
+      </span>
+      <ArchDiagram />
+    </div>
+    <figcaption>Observation to delivery. Solid amber is the main path; dashed lines are the
+    static bundle and the CDC branch. The upper region is the k3s cluster; the lower one is the
+    host container runtime outside it.</figcaption>
+  </figure>
+
+  <h2>KAFKA AND CDC BOUNDARIES</h2>
+  <p>Kafka carries two things and no more: observations from ingestion to processing, and Change
+  Events from processing to delivery. User feedback and delivery receipts stay in PostgreSQL,
+  where nothing consumes them. Keeping the broker this narrow is deliberate &mdash; every
+  additional topic is another ordering and replay problem to reason about.</p>
+  <p>An event and the retraction that later withdraws it travel the same topic, and both are
+  keyed by the entity they concern. Kafka preserves order within a partition and routes one key
+  to one partition, so the retraction is always queued behind the event it retracts and cannot
+  overtake it. A subscriber can never be told that an event was withdrawn before being told it
+  existed.</p>
+  <p>Consumers are idempotent, retries are bounded, and a message that keeps failing is moved to
+  a dead-letter topic along with the error that stopped it. Replaying from there is a deliberate
+  operator action and never automatic, because automatic replay simply recreates the loop that
+  caused the failure in the first place.</p>
+  <p>Change data capture is kept as a separate, bounded path: Debezium watches only the state and
+  Change Event tables and feeds an analytics-shaped consumer. The rule around it is absolute
+  &mdash; <b>CDC propagates database rows, domain events drive behaviour, and the two never
+  trigger the same effect.</b> The moment both could cause a notification, every effect in the
+  system has two possible causes.</p>
+  <p>That capability has a real operational cost, and it is accepted knowingly. PostgreSQL will
+  not recycle a write-ahead log segment newer than the oldest replication slot's bookmark, so a
+  slot with nothing consuming it pins the log, accumulates without bound, and eventually stops
+  the database accepting writes. Slot lag is monitored and bounded, and a slot left idle is
+  dropped rather than parked.</p>
+
+  <h2>OPERATING IT</h2>
+  <p>Infrastructure is defined in Terraform, separated into layers by how often each one changes
+  and how much damage destroying it would cause. OpenTelemetry instruments every service, with
+  Prometheus for metrics, Loki for logs and Tempo for traces, so a single trace follows one
+  observation from fetch through extraction, resolution, materiality and the state comparison all
+  the way to delivery, crossing the message broker intact. The two questions that dominate
+  debugging are why something reached a user and why an observation produced nothing, and both
+  are answered by following one trace end to end.</p>
+  <p>Two of the measurements are product measurements rather than operational ones. The number of
+  Change Events suppressed, and the number of state promotions blocked, measure the mechanisms
+  the whole design exists to provide. If suppression sits near zero, the filtering is not
+  filtering anything and the premise has not been demonstrated.</p>
+  <p>On the security side, identity is OIDC-compatible and no passwords are stored. Network
+  policy is default-deny, and only ingestion, the model gateway and delivery are allowed outbound
+  internet access &mdash; the processing service has none, so content arriving from a source has
+  no route back out. The runtime database account cannot alter schema; migrations run under a
+  separate account, so a compromise at the application layer cannot reshape the database. Source
+  content is treated as data and never as instruction, and the defence against prompt injection
+  is the structural validation described earlier rather than any wording in a prompt.</p>
+
+  <h2>PROVING IT</h2>
+  <p>The first thing built is the benchmark, not the infrastructure. The hardest claim Delta
+  makes is that it can produce a correct before and after out of messy evidence, and everything
+  else is engineering arranged around that claim.</p>
+  <p>Two questions are measured separately, because they fail for different reasons and a single
+  score would hide one behind the other.</p>
+  <ul>
+    <li><b>Is the diff right?</b> Frozen historical cases are replayed with their recorded source
+      responses, and the output is checked against both the Change Events that should appear and
+      the ones that should not.</li>
+    <li><b>Can the fact taxonomy represent the change at all?</b> This is asked against a list of
+      genuinely material changes compiled before the extractor existed, by someone who was not
+      building it &mdash; otherwise the taxonomy ends up graded by its own author.</li>
+  </ul>
+  <p>A few bars are absolute, because for those the right answer is not a matter of degree: the
+  before-state must be correct on every event produced, materiality must match the rule table
+  exactly, one real-world occurrence must yield exactly one event, and a window in which nothing
+  happened must produce nothing. Recall is deliberately not fixed in advance. A target chosen
+  before anyone knows what the taxonomy actually covers is a number invented to be met, so it is
+  calibrated from the first run instead.</p>
+  <p>The fixtures have to include the awkward cases or the exercise proves nothing: a retraction,
+  a release that slipped and was re-dated, an advisory published before the event it describes,
+  two entities that share an alias, one occurrence reported by five different sources, and a
+  stretch of time where the correct output is silence.</p>
+  <p>Alongside all of it, a plain keyword-alerting baseline runs against exactly the same
+  fixtures and its results are published next to Delta's. That comparison is the point of the
+  whole exercise. If Delta cannot clearly beat a keyword alert on noise while matching it on
+  recall, then the premise the product rests on has not been demonstrated &mdash; and it is
+  better to learn that from a benchmark than from users.</p>
+</main>
+
+  <footer class="foot">
+    <a href="/#projects">&larr; back to the board</a>
+  </footer>
+
+  <div class="modal" id="dgModal" hidden>
+    <div class="modal-in" role="dialog" aria-modal="true" aria-label="Architecture diagram">
+      <button class="modal-close" id="dgClose" type="button" aria-label="Close">&times;</button>
+      <div id="dgSlot"></div>
+      <p class="modal-cap">Delta &mdash; system architecture</p>
+    </div>
+  </div>
+
+  <script is:inline>
+    (() => {
+      // The diagram is moved into the modal rather than copied, so the document
+      // never holds two elements carrying the same marker and title ids.
+      const frame = document.getElementById('dgFrame');
+      const modal = document.getElementById('dgModal');
+      const slot = document.getElementById('dgSlot');
+      const close = document.getElementById('dgClose');
+      if (!frame || !modal) return;
+      const svg = frame.querySelector('svg.dg');
+      let last = null;
+
+      const open = () => {
+        if (!modal.hidden) return;
+        last = document.activeElement;
+        slot.appendChild(svg);
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        close.focus();
+      };
+      const shut = () => {
+        if (modal.hidden) return;
+        frame.appendChild(svg);
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        if (last) last.focus();
+      };
+      frame.addEventListener('click', open);
+      frame.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+      });
+      close.addEventListener('click', shut);
+      modal.addEventListener('click', (e) => { if (e.target === modal) shut(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') shut(); });
+    })();
+  </script>
+</Base>

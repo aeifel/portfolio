@@ -1,0 +1,121 @@
+---
+// Generated from the project's own architecture model, so the components,
+// the two regions and every connection match the planning documents rather
+// than a redrawing of them.
+---
+<svg class="dg" viewBox="0 0 1247 602" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dgTitle">
+<title id="dgTitle">Delta system architecture: source APIs into delta-ingest, observations over Kafka into delta-processing, Change Events to delta-delivery, and out to the browser through delta-api. Application services run in k3s; PostgreSQL, Kafka, Redis and Debezium run on the host.</title>
+<defs><marker id="dgA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0.5,1 L8.5,5 L0.5,9 z" class="dg-ah"/></marker><marker id="dgAe" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0.5,1 L8.5,5 L0.5,9 z" class="dg-ah dg-em"/></marker></defs>
+<rect class="dg-region" x="39" y="167" width="1199" height="252" rx="11"/>
+<text class="dg-rl" x="52" y="159" text-anchor="start">Kubernetes · k3s, namespace delta</text>
+<rect class="dg-region" x="239" y="482" width="999" height="111" rx="11"/>
+<text class="dg-rl" x="1225" y="474" text-anchor="end">Host container runtime · outside the cluster</text>
+<path class="dg-c dg-em" d="M137.9,112 L138,336" marker-end="url(#dgAe)"/>
+<text class="dg-el" x="146" y="300" text-anchor="start">conditional GET · ETag</text>
+<path class="dg-c dg-em" d="M138.5,402 L138,455 L296,455 L296,506" marker-end="url(#dgAe)"/>
+<text class="dg-el" x="150" y="448" text-anchor="start">source.observed.v1</text>
+<path class="dg-c dg-em" d="M336,506 L336,402" marker-end="url(#dgAe)"/>
+<path class="dg-c" d="M386,402 L386,506" marker-end="url(#dgA)"/>
+<text class="dg-el" x="392" y="452" text-anchor="start">change_event.v1</text>
+<path class="dg-c dg-em" d="M446,506 L446,470 L520,470 L520,402" marker-end="url(#dgAe)"/>
+<path class="dg-c" d="M336.85,336 L336.85,257" marker-end="url(#dgA)"/>
+<text class="dg-el" x="344" y="300" text-anchor="start">extraction · explanation</text>
+<path class="dg-c dg-em" d="M560,402 L560,541 L666,541" marker-end="url(#dgAe)"/>
+<text class="dg-el" x="566" y="535" text-anchor="start">publish user:&#123;id&#125;</text>
+<path class="dg-c dg-em" d="M700,506 L700,402" marker-end="url(#dgAe)"/>
+<text class="dg-el" x="708" y="458" text-anchor="start">subscribe · WS fanout</text>
+<path class="dg-c dg-em" d="M816,355 L890,355 L890,79 L1056,79" marker-end="url(#dgAe)"/>
+<text class="dg-el" x="898" y="200" text-anchor="start">HTTPS + WSS</text>
+<path class="dg-c" d="M540,336 L540,112" marker-end="url(#dgA)"/>
+<text class="dg-el" x="548" y="230" text-anchor="start">email · at-least-once</text>
+<path class="dg-c dg-dash" d="M1138.5,191 L1138.5,112" marker-end="url(#dgA)"/>
+<text class="dg-el" x="1146" y="156" text-anchor="start">static bundle</text>
+<path class="dg-c dg-sec" d="M733.5,112 L733.5,336" marker-end="url(#dgA)"/>
+<text class="dg-el" x="741" y="230" text-anchor="start">JWKS · RS256</text>
+<path class="dg-c" d="M816,385 L928,385 L928,506" marker-end="url(#dgA)"/>
+<text class="dg-el" x="934" y="452" text-anchor="start">SQL</text>
+<path class="dg-c" d="M1011,541.0 L1056,541.0" marker-end="url(#dgA)"/>
+<text class="dg-el" x="1033" y="534" text-anchor="middle">WAL</text>
+<path class="dg-c dg-dash" d="M1138.5,506 L1138.5,402" marker-end="url(#dgA)"/>
+<text class="dg-el" x="1130" y="450" text-anchor="end">delta.cdc.* via Kafka</text>
+<g class="dg-n dg-ext">
+<rect x="56" y="46" width="210" height="66" rx="7"/>
+<text class="dg-t" x="69" y="70">Source APIs</text>
+<text class="dg-s" x="69" y="86">GitHub · OSV · endoflife.date · RSS</text>
+<text class="dg-g" x="69" y="101">allowlisted hosts only</text>
+</g>
+<g class="dg-n dg-ext">
+<rect x="456" y="46" width="165" height="66" rx="7"/>
+<text class="dg-t" x="469" y="74">SMTP Provider</text>
+<text class="dg-s" x="469" y="90">SMTP over TLS</text>
+</g>
+<g class="dg-n dg-sec">
+<rect x="651" y="46" width="165" height="66" rx="7"/>
+<text class="dg-t" x="664" y="74">OIDC Provider</text>
+<text class="dg-s" x="664" y="90">discovery + JWKS</text>
+</g>
+<g class="dg-n dg-ext">
+<rect x="1056" y="46" width="165" height="66" rx="7"/>
+<text class="dg-t" x="1069" y="74">Browser</text>
+<text class="dg-s" x="1069" y="90">React SPA · Vite</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="256" y="191" width="165" height="66" rx="7"/>
+<text class="dg-t" x="269" y="215">LiteLLM</text>
+<text class="dg-s" x="269" y="231">gateway → model-server</text>
+<text class="dg-g" x="269" y="246">OpenRouter fallback</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="1056" y="191" width="165" height="66" rx="7"/>
+<text class="dg-t" x="1069" y="219">delta-web</text>
+<text class="dg-s" x="1069" y="235">nginx · static bundle</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="56" y="336" width="165" height="66" rx="7"/>
+<text class="dg-t" x="69" y="360">delta-ingest</text>
+<text class="dg-s" x="69" y="376">fetch · normalize</text>
+<text class="dg-g" x="69" y="391">1 replica, leased</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="256" y="336" width="165" height="66" rx="7"/>
+<text class="dg-t" x="269" y="364">delta-processing</text>
+<text class="dg-s" x="269" y="380">extraction → state diff</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="456" y="336" width="165" height="66" rx="7"/>
+<text class="dg-t" x="469" y="364">delta-delivery</text>
+<text class="dg-s" x="469" y="380">per-user relevance</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="651" y="336" width="165" height="66" rx="7"/>
+<text class="dg-t" x="664" y="364">delta-api</text>
+<text class="dg-s" x="664" y="380">FastAPI · REST + WS</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="1056" y="336" width="165" height="66" rx="7"/>
+<text class="dg-t" x="1069" y="364">delta-cdc-consumer</text>
+<text class="dg-s" x="1069" y="380">reporting projection</text>
+</g>
+<g class="dg-n dg-bus">
+<rect x="256" y="506" width="220" height="70" rx="7"/>
+<text class="dg-t" x="269" y="534">Kafka</text>
+<text class="dg-s" x="269" y="550">4 topics + 2 DLQ · keyed by entity_id</text>
+</g>
+<g class="dg-n dg-db">
+<rect x="666" y="506" width="165" height="70" rx="7"/>
+<text class="dg-t" x="679" y="534">Redis</text>
+<text class="dg-s" x="679" y="550">pub/sub · rate limits</text>
+</g>
+<g class="dg-n dg-db">
+<rect x="846" y="506" width="165" height="70" rx="7"/>
+<text class="dg-t" x="859" y="530">PostgreSQL 16</text>
+<text class="dg-s" x="859" y="546">+ pgvector</text>
+<text class="dg-g" x="859" y="561">one writer per table</text>
+</g>
+<g class="dg-n dg-svc">
+<rect x="1056" y="506" width="165" height="70" rx="7"/>
+<text class="dg-t" x="1069" y="530">Debezium</text>
+<text class="dg-s" x="1069" y="546">replication slot</text>
+<text class="dg-g" x="1069" y="561">2 tables only</text>
+</g>
+</svg>

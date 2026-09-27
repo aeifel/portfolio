@@ -1,0 +1,22 @@
+---
+// One row that grows to the right as projects are added. The heading is plain
+// on purpose — this is the one section a visitor has to recognise instantly,
+// so it gets no binary, no hex and no wordplay.
+import { PROJECTS } from '../data/projects';
+---
+<section class="projects" id="projects">
+  <div class="pj-head">
+    <h2>Projects</h2>
+    <span class="rule" aria-hidden="true"></span>
+  </div>
+  <div class="pj-grid">
+    {PROJECTS.map((p) => (
+      <a class="pj" href={p.href}>
+        <span class="pj-art">
+          <svg viewBox="0 0 120 72" role="img" aria-label={p.markAlt} set:html={p.mark} />
+        </span>
+        <span class="pj-cap">{p.caption}</span>
+      </a>
+    ))}
+  </div>
+</section>
