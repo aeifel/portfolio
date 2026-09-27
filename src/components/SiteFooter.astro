@@ -17,9 +17,23 @@ import { LINKS } from '../data/resume';
       </svg><span>github</span>
     </a>
   </div>
-  <a class="up-link" href="#top">↑ back up to the board</a>
+  <a class="up-link" href="#top" id="topLink">↑ back up to the board</a>
   <div class="made">
     <span>Made by</span>
     <Binline text="HP" encoding="bin" class="sig" />
   </div>
 </footer>
+
+<script is:inline>
+  (() => {
+    // Smooth scrolling is requested here rather than set globally on <html>,
+    // where it interferes with the browser restoring your position on reload.
+    const link = document.getElementById('topLink');
+    if (!link) return;
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const smooth = !matchMedia('(prefers-reduced-motion:reduce)').matches;
+      scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
+    });
+  })();
+</script>
