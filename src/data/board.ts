@@ -45,6 +45,19 @@ export const COMPONENTS: BoardComponent[] = [
     ],
   },
   {
+    id: 'governance',
+    title: 'governance/',
+    head: 'Keeping personal data out of the models.',
+    status: 'live',
+    body: [
+      `When we use LLMs, we end up sharing data with them as a natural byproduct of how we interact with them. This could be anything from medical symptoms and personal history to important personal and professional documents shared for better understanding. Even if the AI labs don't use this data for training, the fact that our personal details now exist in one more place on the internet introduces additional security risks and concerns about accidental exposure.`,
+      `For organizations, accidentally sharing sensitive data with third parties can also lead to violations of GDPR and other data protection regulations. So managing and securing data without compromising LLM performance is a crucial part of modern AI systems.`,
+      `That is why I built a data protection layer that de-identifies PII before it reaches LLMs. It also provides the supporting infrastructure through tooling mechanisms, allowing LLMs to use function calling whenever an action needs to be performed on the data, without actually exposing the underlying data to the LLM.`,
+      `The PII is replaced with canonical-context placeholders and unique identifier tokens, giving LLMs enough context to work with the data while making it easy for the platform to restore the original information before displaying the response to the user. The mapping between the original data and the PII tokens is stored securely, with restricted access, to prevent accidental exposure. This also helps in user data management and makes it easier to purge customer data when requested.`,
+      `With this, we can leverage modern AI while keeping security in place, getting the best of both worlds.`,
+    ],
+  },
+  {
     id: 'inference',
     title: 'inference/',
     head: 'Running open-weight models in production.',
