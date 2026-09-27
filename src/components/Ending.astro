@@ -28,7 +28,24 @@ import { RESUME } from '../data/resume';
 
 <script is:inline define:vars={{ QUOTES }}>
   (() => {
-    const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    // Draw without replacement: a shuffled bag held for the session, refilled
+    // when empty. Uniform like plain random, but every quote appears once
+    // before any repeats — so refreshing walks the whole set.
+    const pick = () => {
+      let bag = null;
+      try { bag = JSON.parse(sessionStorage.getItem('qbag')); } catch (e) {}
+      if (!Array.isArray(bag) || !bag.length) {
+        bag = QUOTES.map((_, i) => i);
+        for (let i = bag.length - 1; i > 0; i--) {          // Fisher–Yates
+          const j = Math.floor(Math.random() * (i + 1));
+          [bag[i], bag[j]] = [bag[j], bag[i]];
+        }
+      }
+      const idx = bag.pop();
+      try { sessionStorage.setItem('qbag', JSON.stringify(bag)); } catch (e) {}
+      return QUOTES[idx] ?? QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    };
+    const q = pick();
     document.getElementById('quoteText').textContent = '“' + q.text + '”';
     document.getElementById('quoteWho').textContent = q.who;
 

@@ -3,8 +3,6 @@ export interface Section { heading: string; bullets: Bullet[] }
 
 export const RESUME = {
   name: 'Hari Prasath S',
-  // No employer, location, or education: this page is public, and none of it
-  // is needed to judge the work.
   job: {
     title: 'Software Development Engineer',
   },

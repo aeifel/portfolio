@@ -137,7 +137,6 @@ rendered at 1200×630. Keep the dimensions — most platforms crop anything else
   **Do not** feed those fields from a CMS, form, API or untrusted contributor
   without replacing the HTML strings with structured content
 - Workflow actions are pinned to commit SHAs, not mutable tags
-- The résumé names no employer, no location and no institution
 
 ### Before launch, in GitHub settings
 

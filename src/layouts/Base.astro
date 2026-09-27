@@ -66,10 +66,11 @@ const person = {
   <script is:inline>
     // Before first paint: opt into motion only when JS is on and motion is welcome,
     // and restore the stored theme so there is no flash of the wrong palette.
+    // Scroll restoration is left on the browser default, so a reload keeps your
+    // place without touching the URL.
     if (!matchMedia('(prefers-reduced-motion:reduce)').matches)
       document.documentElement.classList.add('js');
     try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-    try { history.scrollRestoration = 'manual'; } catch (e) {}
   </script>
 </head>
 <body class={bodyClass}>

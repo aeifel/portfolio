@@ -5,7 +5,7 @@ export const INTRO: string[] = [
   'I build challenging applications and solve challenging problems.',
   'I always give special attention to <b>fundamentals</b>, and am keen to know <b>what a system is made of</b> and how.',
   'I am always eager to explore next-gen ideas and use them to take systems to the next level.',
-  'Fascinated by the idea that the entire computer world works on top of <b>0s and 1s</b>.',
+  'Fascinated by the fact that the entire computer world works on top of <b>0s and 1s</b>.',
 ];
 
 export const MOT = {
