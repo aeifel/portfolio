@@ -46,11 +46,13 @@ counts in the headings are all derived from it.
 
 ## Security
 
-- No backend, forms, APIs or third-party scripts; nothing is fetched at runtime
+- No backend, forms or APIs. The only third-party request is Cloudflare Web
+  Analytics, which counts page views without cookies or personal data
 - A Content Security Policy is applied through a meta tag. `script-src` carries
   a SHA-256 hash for every inline script, generated at build time by
   `integrations/csp.mjs`, and `'unsafe-inline'` is removed. Editing a script
-  changes its hash on the next build
+  changes its hash on the next build. The analytics beacon is allowed by origin
+  rather than by hash, and is the only external script the policy admits
 - `set:html` is used only for repository-owned copy and inline SVG
 - Workflow actions are pinned to commit SHAs rather than mutable tags
 - HTTPS is enforced on the custom domain

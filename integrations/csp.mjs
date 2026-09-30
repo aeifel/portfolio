@@ -34,8 +34,13 @@ export default function csp() {
             if (NON_JS.test(attrs)) continue;
             hashes.add(`'sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}'`);
           }
-          const strict = `script-src 'self' ${[...hashes].join(' ')}`;
-          const out = html.replace("script-src 'self' 'unsafe-inline'", strict);
+          // Replace only the 'unsafe-inline' token inside script-src, so any other
+          // source in that directive survives. [^;] keeps the match from
+          // wandering into style-src, which legitimately keeps 'unsafe-inline'.
+          const out = html.replace(
+            /script-src ([^;]*?)'unsafe-inline'/,
+            (_, rest) => `script-src ${rest}${[...hashes].join(' ')}`,
+          );
           if (out !== html) { await writeFile(file, out); pages++; }
         }
         logger.info(`script-src hashed on ${pages} page(s) — 'unsafe-inline' removed`);

@@ -8,6 +8,11 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// Page-view counting. The token identifies the site, not the account, and is
+// meant to be served in the page. Built with JSON.stringify because Astro
+// reads a literal brace in an attribute as an expression.
+const CF_BEACON = JSON.stringify({ token: '898d9a3258694df8a264449ff94d9bb6' });
 const ogImage = new URL('/og.png', Astro.site).href;
 
 // Told to search engines directly, rather than left to be inferred from markup.
@@ -61,7 +66,7 @@ const person = {
       proxy or a different host. */}
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
   />
   <script is:inline>
     // Before first paint: opt into motion only when JS is on and motion is welcome,
@@ -89,5 +94,11 @@ const person = {
       });
     })();
   </script>
+  <script
+    is:inline
+    type="module"
+    src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon={CF_BEACON}
+  ></script>
 </body>
 </html>
