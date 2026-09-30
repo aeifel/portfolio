@@ -24,7 +24,7 @@ const count = CORE.length + TICKER.length;
     <div class="core" aria-label="core technologies">
       {CORE.map((m) => (
         <div class="g">
-          <svg viewBox="0 0 24 24" role="img" aria-label={m.label} set:html={m.art} />
+          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={m.art} />
           <span>{m.label}</span>
         </div>
       ))}

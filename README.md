@@ -12,8 +12,8 @@ Astro and TypeScript, static output, no client framework.
 The site ships no JavaScript bundle. Cards are native `<details>` and open with
 scripting disabled, hex and binary strings are encoded at build time rather than
 in the browser, and the few interactive pieces — the theme toggle, the skills
-sheet, the résumé text size, the architecture diagram's enlarge — are a handful
-of lines of inline script each.
+sheet, the résumé text size, the project page's contents index and the
+architecture diagram's enlarge — are a handful of lines of inline script each.
 
 ## Getting started
 
@@ -36,7 +36,8 @@ src/
   layouts/       the shared document head
   lib/           build-time helpers
   styles/
-public/          favicon, link-preview card, robots.txt, sitemap.xml, CNAME
+public/          favicon, link-preview card, resume PDF, robots.txt,
+                 sitemap.xml, CNAME
 integrations/    build-time Content Security Policy hashing
 ```
 
