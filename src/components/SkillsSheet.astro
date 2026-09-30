@@ -13,7 +13,7 @@ import { CORE, GROUPS } from '../data/skills';
   <div class="sheet-in" id="sheetIn" tabindex="-1">
     <div class="sheet-core">
       {CORE.map((m) => (
-        <div class="g" title={m.id}>
+        <div class="g">
           <svg viewBox="0 0 24 24" aria-hidden="true" set:html={m.art} />
           <span>{m.label}</span>
         </div>

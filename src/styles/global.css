@@ -212,7 +212,10 @@ img{max-width:100%}
   color:var(--signal);opacity:.5;user-select:none;white-space:nowrap;
   animation:flow 30s linear infinite;will-change:transform;
 }
-@keyframes flow{to{transform:translateY(-50%)}}
+/* The strip is the content twice over, so starting a full copy up and
+   ending at zero loops seamlessly while the bits travel downward —
+   the direction the reader is already going. */
+@keyframes flow{from{transform:translateY(-50%)}to{transform:translateY(0)}}
 .spine-tag{
   position:sticky;top:64px;z-index:3;height:0;
   display:flex;justify-content:center;pointer-events:none;
@@ -541,7 +544,7 @@ img{max-width:100%}
 .cv-top h1{font-family:var(--sans);font-size:2.31em;font-weight:700;margin:0 0 8px;color:var(--ink);letter-spacing:-.01em}
 .cv-roles{font-family:var(--sans);font-size:12.5px;letter-spacing:.09em;color:var(--ink-3);margin:0 0 8px;line-height:1.7}
 .cv-line{font-family:var(--sans);font-size:1em;color:var(--ink-2);margin:0}
-.cvpage h2{font-family:var(--sans);font-size:1em;font-weight:700;letter-spacing:.1em;color:var(--ink);
+.cvpage h2{font-family:var(--sans);font-size:1.12em;font-weight:700;letter-spacing:.1em;color:var(--ink);
   margin:32px 0 12px;padding-bottom:5px;border-bottom:1.5px solid var(--line-2)}
 .cvpage h3{font-family:var(--sans);font-size:1.04em;font-style:italic;font-weight:700;color:var(--ink);margin:16px 0 7px}
 .cv-job-h{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:4px}
@@ -674,7 +677,7 @@ img{max-width:100%}
 .project-page .repo-out{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 .project-page .lede{font-family:var(--sans);font-size:16.5px;line-height:1.72;color:var(--ink);margin:34px 0 0}
-.project-page h2{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.16em;
+.project-page h2{font-family:var(--mono);font-size:15px;font-weight:500;letter-spacing:.15em;
   color:var(--ink);margin:52px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
 .project-page p{font-family:var(--sans);font-size:14.5px;line-height:1.78;color:var(--ink-2);margin:0 0 16px}
 .project-page p b,.project-page li b{color:var(--ink);font-weight:600}
@@ -691,7 +694,7 @@ img{max-width:100%}
   margin:0 0 18px;counter-reset:fs}
 .project-page .flow-s{padding:15px 19px 16px}
 .project-page .flow-s + .flow-s{border-top:1px solid var(--line)}
-.project-page .flow-s h3{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--ink);margin:0 0 10px}
+.project-page .flow-s h3{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);margin:0 0 11px}
 .project-page .flow-s ol{margin:0;padding:0;list-style:none}
 .project-page .flow-s li{font-family:var(--sans);font-size:13.5px;line-height:1.66;color:var(--ink-2);
   margin:0 0 8px;padding-left:27px;position:relative;counter-increment:fs}
@@ -767,3 +770,53 @@ figcaption{font-family:var(--sans);font-size:12.5px;line-height:1.6;color:var(--
   .project-page .modal{padding:12px}
   .project-page .modal-in{padding:22px 14px 16px}
 }
+
+/* ══════════════ project page: title row, contents index ══════════════ */
+/* The repo link sits on the title's line, which was otherwise empty. */
+.project-page .title-row{display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin:0 0 10px}
+.project-page .title-row h1{margin:0}
+
+.project-page .toc{margin:26px 0 0}
+.project-page .toc summary{display:flex;align-items:center;gap:9px;cursor:pointer;
+  padding:9px 0;list-style:none;font-family:var(--mono);font-size:11px;
+  letter-spacing:.16em;color:var(--ink-3)}
+.project-page .toc summary::-webkit-details-marker{display:none}
+.project-page .toc summary::after{content:'';width:5px;height:5px;
+  border-right:1px solid currentColor;border-bottom:1px solid currentColor;
+  transform:rotate(45deg);transition:transform .25s}
+.project-page .toc[open] summary::after{transform:rotate(-135deg)}
+.project-page .toc nav{display:flex;flex-direction:column;
+  padding:7px 0 4px;border-top:1px solid var(--line)}
+.project-page .toc nav a{padding:5px 0 5px 11px;border-left:1px solid transparent;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-3);
+  text-decoration:none;transition:color .2s,border-color .2s}
+.project-page .toc nav a:hover{color:var(--ink)}
+.project-page .toc nav a.on{color:var(--signal);border-left-color:var(--signal)}
+.project-page .toc nav a:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+/* Wide enough for a gutter: the index moves out beside the article and stays
+   with the reader. Below this it folds back into the page. */
+@media (min-width:1100px){
+  .project-page .wrap{max-width:1062px;display:grid;
+    grid-template-columns:198px minmax(0,760px);
+    grid-template-rows:auto 1fr;gap:0 52px}
+  .project-page .proj-head{grid-column:2;grid-row:1}
+  .project-page .proj-body{grid-column:2;grid-row:2}
+  .project-page .toc{grid-column:1;grid-row:2;align-self:start;
+    position:sticky;top:76px;margin:0}
+  .project-page .toc summary{display:none}
+  .project-page .toc nav{border-top:none;padding-top:0}
+}
+
+/* ══════════════ resume actions ══════════════ */
+.cv-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:1.7em}
+.cv-actions .cv-back{margin-bottom:0}
+.cv-dl{margin-left:auto;display:inline-flex;align-items:center;gap:7px;
+  padding:6px 12px;border:1px solid var(--line);border-radius:5px;
+  background:var(--surface);color:var(--ink-2);text-decoration:none;
+  font-family:var(--mono);font-size:.76em;letter-spacing:.14em;transition:.22s}
+.cv-dl svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5;
+  stroke-linecap:round;stroke-linejoin:round}
+.cv-dl:hover{color:var(--signal);border-color:var(--line-2);background:var(--surface-2)}
+.cv-dl:focus-visible{outline:2px solid var(--signal);outline-offset:2px}

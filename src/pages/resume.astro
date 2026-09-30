@@ -13,7 +13,13 @@ import { RESUME } from '../data/resume';
   <div class="cvscroll">
   <main class="cvpage">
     <div class="cv-wrap">
-      <a class="cv-back" href="/">&larr; back to the board</a>
+      <div class="cv-actions">
+        <a class="cv-back" href="/">&larr; back to the board</a>
+        <a class="cv-dl" href="/Hari-Prasath-Resume.pdf" download>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6v8.2m0 0L4.9 6.7M8 9.8l3.1-3.1M2.6 12.1v1.2a1 1 0 0 0 1 1h8.8a1 1 0 0 0 1-1v-1.2"/></svg>
+          PDF
+        </a>
+      </div>
 
       <header class="cv-top">
         <h1>{RESUME.name}</h1>
